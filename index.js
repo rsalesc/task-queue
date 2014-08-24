@@ -7,17 +7,22 @@ var extend = require('extend');
 var q = function(options){
     var _opts = options;
     var _array = this._opts.initialSize ? new Array(this._opts.initialSize) : [];
-    var _running = this._opts.start;
+    var _running = this._opts.start | false;
 
     _opts.concurrency = this._opts.concurrency | 1;
 
-    var _exec = function(){
-        var actual_concurrency = _opts.concurrency > this._array.length ? this._array.length : _opts.concurrency;
-        while(actual_concurrency > 0){
-            var popped = this._array.pop();
-            if(popped)
-                setImmediate(popped.method, popped.args);
-            actual_concurrency--;
+    var _exec = function() {
+        if (_running) {
+            var i, actual_concurrency = _opts.concurrency > this._array.length ? this._array.length : _opts.concurrency;
+            for (i = 0; i < actual_concurrency; i++){
+                var popped = this._array.pop();
+                if (popped)
+                    setImmediate(function () {
+                        popped.method.apply(popped.context | null, popped.args | null);
+                        actual_concurrency--;
+                        if (actual_concurrency == 0) _exec();
+                    });
+            }
         }
     };
 
@@ -25,11 +30,11 @@ var q = function(options){
         size: function(){
             return _array.length;
         },
-        push: function(fn){ // support fn(args) arguments
-            this._array.push(arguments.length > 1 ? {
-                method: fn,
-                args: Array.prototype.slice.call(arguments, 2)
-            } : {method: fn});
+        push: function(fn, opts){ // support fn(args) arguments
+            var task = opts | {};
+            task.method = fn;
+            this._array.push(task);
+            _exec();
         },
         pop: function(){
             if(this.size() > 0)
@@ -53,3 +58,5 @@ var q = function(options){
         }
     }
 };
+
+exports.module = q;
