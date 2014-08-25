@@ -4,7 +4,7 @@
 
 var tq = require('./index.js');
 
-var q = tq.Queue({capacity: 64});
+var q = tq.Queue({capacity: 3});
 
 q.enqueue(function(){});
 q.enqueue(function(){});
