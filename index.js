@@ -35,12 +35,14 @@ var q = function(options){
             return _array.size;
         },
         enqueue: function(fn, opts){ // support fn(args) arguments
-            if(_array.isFull()) throw new Error("Circular buffer is at full capacity.");
+            if(_array.isFull()){
+                return false;
+            }
             var task = objdefined(opts, {});
             task.method = fn;
-            _array.push(task);
-            console.log(task);
+            var size = _array.push(task);
             _exec();
+            return size;
         },
         dequeue: function(){
             if(_array.size > 0)
