@@ -2,7 +2,7 @@
  * Created by root on 24/08/14.
  */
 
-var Buffer = require('CBuffer');
+var Buffer = require('cbuffer-resizable');
 var objdefined = require('objdefined');
 var extend = require('extend');
 var util = require('util');
