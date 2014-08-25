@@ -4,16 +4,16 @@
 
 var q = function(options){
     var _opts = options;
-    var _array = this._opts.initialSize ? new Array(this._opts.initialSize) : [];
-    var _running = this._opts.start | false;
+    var _array = _opts.initialSize ? new Array(_opts.initialSize) : [];
+    var _running = _opts.start | false;
 
     _opts.concurrency = this._opts.concurrency | 1;
 
     var _exec = function() {
         if (_running) {
-            var i, actual_concurrency = _opts.concurrency > this._array.length ? this._array.length : _opts.concurrency;
+            var i, actual_concurrency = _opts.concurrency > _array.length ? _array.length : _opts.concurrency;
             for (i = 0; i < actual_concurrency; i++){
-                var popped = this._array.pop();
+                var popped = _array.pop();
                 if (popped)
                     setImmediate(function () {
                         popped.method.apply(popped.context | null, popped.args | null);
@@ -31,12 +31,12 @@ var q = function(options){
         push: function(fn, opts){ // support fn(args) arguments
             var task = opts | {};
             task.method = fn;
-            this._array.push(task);
+            _array.push(task);
             _exec();
         },
         pop: function(){
             if(this.size() > 0)
-                return this._array.pop();
+                return _array.pop();
             return null;
         },
         concurrency: function(value){
