@@ -20,9 +20,9 @@ var q = function(options){
 
     this._exec = function() {
         if (this._running) {
-            var i, actual_concurrency = this._opts.concurrency > this._array.size ? this._array.size : this._opts.concurrency;
+            var i, actual_concurrency = this._opts.concurrency > this.size() ? this.size() : this._opts.concurrency;
             for (i = 0; i < actual_concurrency; i++){
-                var deq = this._array.shift();
+                var deq = this.dequeue();
                 if (deq) {
                     setImmediate(function () {
                         deq.method.apply(objdefined(deq.context, null),
@@ -42,9 +42,6 @@ q.prototype = {
         return this._array.size;
     },
     enqueue: function(fn, opts){ // supports fn(args..) arguments in opts.args = [args..]
-        if(this._array.isFull()){
-            return false;
-        }
         var task = objdefined(opts, {});
         task.method = fn;
         var size = this._array.push(task);
@@ -52,7 +49,7 @@ q.prototype = {
         return size;
     },
     dequeue: function(){
-        if(this._array.size > 0)
+        if(this.size() > 0)
             return this._array.shift();
         return null;
     },
