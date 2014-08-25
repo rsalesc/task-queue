@@ -10,5 +10,10 @@
     "repository":{
         "type": "git",
         "url": "http://github.com/skywalkerd/task-queue.git"
+    },
+    "dependencies":
+    {
+        "CBuffer": "~0.1.5",
+        "objdefined": "~0.0.1"
     }
 }
