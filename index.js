@@ -57,4 +57,4 @@ var q = function(options){
     }
 };
 
-exports.module = q;
+module.exports = q;
