@@ -7,19 +7,21 @@ var q = function(options){
     var _array = _opts.initialSize ? new Array(_opts.initialSize) : [];
     var _running = _opts.start | false;
 
-    _opts.concurrency = this._opts.concurrency | 1;
+    _opts.concurrency = _opts.concurrency | 1;
 
     var _exec = function() {
         if (_running) {
             var i, actual_concurrency = _opts.concurrency > _array.length ? _array.length : _opts.concurrency;
             for (i = 0; i < actual_concurrency; i++){
                 var popped = _array.pop();
-                if (popped)
+                if (popped) {
                     setImmediate(function () {
-                        popped.method.apply(popped.context | null, popped.args | null);
+                        popped.method.apply(popped.context != undefined ? popped.context : null,
+                                            popped.args != undefined ? popped.args : null);
                         actual_concurrency--;
                         if (actual_concurrency == 0) _exec();
                     });
+                }
             }
         }
     };
@@ -29,9 +31,10 @@ var q = function(options){
             return _array.length;
         },
         push: function(fn, opts){ // support fn(args) arguments
-            var task = opts | {};
+            var task = opts != undefined ? opts : {};
             task.method = fn;
             _array.push(task);
+            console.log(task);
             _exec();
         },
         pop: function(){
