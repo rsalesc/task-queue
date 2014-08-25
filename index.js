@@ -2,8 +2,6 @@
  * Created by root on 24/08/14.
  */
 
-var extend = require('extend');
-
 var q = function(options){
     var _opts = options;
     var _array = this._opts.initialSize ? new Array(this._opts.initialSize) : [];

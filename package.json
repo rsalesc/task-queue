@@ -1,7 +1,7 @@
 {
     "author" : "Roberto Sales <robertosalesc@dcc.ufba.br>",
     "name": "task-queue",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "description": "async single worker tasks queue that supports concurrency, priority and provide simple interface for passing task arguments",
     "keywords": ["task", "queue", "worker", "concurrency", "async", "priority"],
     "license": "MIT",
@@ -10,8 +10,5 @@
     "repository":{
         "type": "git",
         "url": "http://github.com/skywalkerd/task-queue.git"
-    },
-    "dependencies":{
-        "extend": "~1.3.0"
     }
 }
