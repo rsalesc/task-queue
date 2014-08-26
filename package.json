@@ -13,7 +13,7 @@
     },
     "dependencies":
     {
-        "cbuffer-resizable": "~0.0.4",
+        "cbuffer-resizable": "~0.0.3",
         "binaryheap-resizable": "~0.0.6",
         "objdefined": "~0.0.1",
         "extend": "*"
