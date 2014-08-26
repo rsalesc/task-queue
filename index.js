@@ -25,6 +25,7 @@ q.prototype = {
         this._array = new Buffer(this._opts.capacity);
     },
     _exec: function() {
+        var self = this;
         if (this._running) {
             var i, actual_concurrency = this._opts.concurrency > this.size() ? this.size() : this._opts.concurrency;
             for (i = 0; i < actual_concurrency; i++){
@@ -34,7 +35,7 @@ q.prototype = {
                         deq.method.apply(objdefined(deq.context, null),
                             objdefined(deq.args, null));
                         actual_concurrency--;
-                        if (actual_concurrency == 0) this._exec();
+                        if (actual_concurrency == 0) self._exec();
                     });
                 }
             }
