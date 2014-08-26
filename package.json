@@ -1,7 +1,7 @@
 {
     "author" : "Roberto Sales <robertosalesc@dcc.ufba.br>",
     "name": "task-queue",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "async single worker tasks queue that supports concurrency, priority and provide simple interface for passing task arguments",
     "keywords": ["task", "queue", "worker", "concurrency", "async", "priority"],
     "license": "MIT",
@@ -13,7 +13,8 @@
     },
     "dependencies":
     {
-        "cbuffer-resizable": "~0.0.1",
+        "cbuffer-resizable": "~0.0.4",
+        "binaryheap-resizable": "~0.0.6",
         "objdefined": "~0.0.1",
         "extend": "*"
     }

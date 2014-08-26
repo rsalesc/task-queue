@@ -3,6 +3,7 @@
  */
 
 var Buffer = require('cbuffer-resizable');
+var Heap = require('binaryheap-resizable');
 var objdefined = require('objdefined');
 var extend = require('extend');
 var util = require('util');
@@ -11,14 +12,19 @@ var q = function(options){
     if(!(this instanceof q)){
         return new q(options);
     }
-    this._opts = options;
+    this._opts = options || {};
     if(!objdefined(this._opts.capacity)) throw new Error("Buffer capacity must be passed to task-queue.");
-    this._array = new Buffer(this._opts.capacity);
     this._running = objdefined(this._opts.start, false);
-
     this._opts.concurrency = objdefined(this._opts.concurrency, 1);
+    this._initArray();
+};
 
-    this._exec = function() {
+q.prototype = {
+    constructor: q,
+    _initArray: function(){
+        this._array = new Buffer(this._opts.capacity);
+    },
+    _exec: function() {
         if (this._running) {
             var i, actual_concurrency = this._opts.concurrency > this.size() ? this.size() : this._opts.concurrency;
             for (i = 0; i < actual_concurrency; i++){
@@ -26,18 +32,14 @@ var q = function(options){
                 if (deq) {
                     setImmediate(function () {
                         deq.method.apply(objdefined(deq.context, null),
-                                            objdefined(deq.args, null));
+                            objdefined(deq.args, null));
                         actual_concurrency--;
                         if (actual_concurrency == 0) this._exec();
                     });
                 }
             }
         }
-    };
-};
-
-q.prototype = {
-    constructor: q,
+    },
     size: function(){
         return this._array.size;
     },
@@ -50,7 +52,7 @@ q.prototype = {
     },
     dequeue: function(){
         if(this.size() > 0)
-            return this._array.shift();
+            return this._array.pop();
         return null;
     },
     concurrency: function(value){
@@ -71,6 +73,9 @@ q.prototype = {
     options: function(opts){
         if(!objdefined(opts)) return this._opts;
         extend(this._opts, opts);
+    },
+    toArray: function(){
+        return this._array.toArray();
     }
 };
 
@@ -78,11 +83,11 @@ var p = function(options){  // p extends q
     if(!(this instanceof p)){
         return new p(options);
     }
+    options = options || {};
+    options.comparator = options.comparator || function(a, b){ // Array.sort() comparator
+        return a.priority > b.priority;                               // Higher priority comes first
+    };
     q.prototype.constructor.call(this, options);
-    this._comparator = null;
-    this.comparator(function(a, b){                                     // Array.sort() comparator
-        return b.priority - a.priority;                               // Higher priority comes first
-    });
 };
 
 util.inherits(p, q);
@@ -90,22 +95,20 @@ util.inherits(p, q);
 p.prototype.constructor = p;
 
 p.prototype.comparator = function(fn){
-    if(!objdefined(fn)) return this._comparator;
-    this._comparator = fn;
-    this._safe_comparator = function(a, b){
-        if(!objdefined(a)) return 1;
-        if(!objdefined(b)) return -1;
-        return fn(a, b);
-    };
+    if(!objdefined(fn)) return this._opts.comparator;
+    this._opts.comparator = fn;
 };
 
 p.prototype.enqueue = function(fn, opts){
     var size;
     if(size = q.prototype.enqueue.call(this, fn, objdefined(opts, {priority: 1}))){
-        this._array.sort(this._safe_comparator);
         return size;
     }
     return false;
+};
+
+p.prototype._initArray = function(){
+    this._array = new Heap(this._opts.capacity, this._opts.comparator);
 };
 
 module.exports = {
