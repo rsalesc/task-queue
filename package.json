@@ -14,8 +14,16 @@
     "dependencies":
     {
         "cbuffer-resizable": "~0.0.3",
-        "binaryheap-resizable": "~0.0.6",
-        "objdefined": "~0.0.1",
+        "binaryheap-resizable": "~1.0.0",
         "extend": "*"
+    },
+    "devDependencies":{
+        "mocha": "1.x.x",
+        "chai": "1.x.x"
+    },
+    "scripts": {
+       "clean": "rm -rf lib/*",
+       "prepublish": "npm run clean && coffee -o lib/ -c src/",
+       "pretest": "npm run clean && coffee -m -o lib/ -c src/"
     }
 }

@@ -1,12 +1,19 @@
+exports.module = require('./tq.js');
+
 /**
  * Created by root on 24/08/14.
  */
-
+/*
 var Buffer = require('cbuffer-resizable');
 var Heap = require('binaryheap-resizable');
-var objdefined = require('objdefined');
 var extend = require('extend');
 var util = require('util');
+
+var objdefined = function(obj, opt){
+    if(arguments.length > 1)
+        return obj !== undefined && obj != null ? obj : opt;
+    return obj !== undefined && obj != null;
+};
 
 var q = function(options){
     if(!(this instanceof q)){
@@ -102,7 +109,7 @@ p.prototype.comparator = function(fn){
 
 p.prototype.enqueue = function(fn, opts){
     var size;
-    if(size = q.prototype.enqueue.call(this, fn, objdefined(opts, {priority: 1}))){
+    if(size = q.prototype.enqueue.call(this, fn, objdefined(opts, {}))){
         return size;
     }
     return false;
@@ -115,4 +122,4 @@ p.prototype._initArray = function(){
 module.exports = {
     Queue: q,
     PriorityQueue: p
-};
+}; */
