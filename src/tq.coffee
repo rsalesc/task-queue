@@ -14,7 +14,7 @@ class Queue
   constructor: (@opts = {}) ->
     return new Queue(opts) unless (@ instanceof Queue)
 
-    throw new Error("Buffer capacity must be passed") unless opts.capacity?
+    throw new Error("Buffer capacity must be passed") unless @opts.capacity?
     @opts._running = @opts.start ? false
     @opts.concurrency = @opts.concurrency ? 1
     @_initArray()
@@ -27,8 +27,10 @@ class Queue
       real_concurrency = actual_concurrency = if @opts.concurrency > @size() then @size() else @opts.concurrency
       setImmediate(=>
         deq.method.apply(deq.context ? null, deq.args ? null)
-        @_exec if --actual_concurrency is 0
-      ) for n in [1..real_concurrency] when (deq = @dequeue)?
+        if --actual_concurrency is 0
+          @_exec
+          setImmediate(@finished) if @finished?
+      ) for n in [1..real_concurrency] when (deq = @dequeue())?
       return
 
   size: ->
@@ -41,7 +43,7 @@ class Queue
     return size
 
   dequeue: ->
-    return if @size() > 0 then @array.pop() else null
+    return if @size() > 0 then @_array.pop() else null
 
   concurrency: (value) ->
     return @opts.concurrency unless value?
