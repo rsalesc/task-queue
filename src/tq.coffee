@@ -29,12 +29,14 @@ class Queue
       real_concurrency = actual_concurrency = if @opts.concurrency > @size() then @size() else @opts.concurrency
       setImmediate(=>
         deq.method.apply(deq.context ? null, deq.args ? null)
+        setImmediate(=> @finishedTask()) if @finishedTask?
         if --actual_concurrency is 0
-          if @_singleShot and @size() is 0
-            @_singleShot = false
-            @_running = false
-          @_exec
-          setTimeout(@finished, @opts.timeout) if @finished?
+          if @size() is 0
+            setImmediate(=> @finished()) if @finished?
+            if @_singleShot and @size() is 0
+              @_singleShot = false
+              @_running = false
+          setTimeout((=> @_exec()), @opts.timeout)
       ) while real_concurrency-- when (deq = @dequeue())?
       return
 
