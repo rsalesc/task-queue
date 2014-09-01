@@ -1,4 +1,4 @@
-exports.module = require('./tq.js');
+module.exports = require('./lib/tq');
 
 /**
  * Created by root on 24/08/14.
