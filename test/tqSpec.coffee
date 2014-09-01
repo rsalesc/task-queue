@@ -5,6 +5,12 @@ expect = require('chai').expect
 CBuffer = require('cbuffer-resizable')
 Heap = require('binaryheap-resizable')
 
+count_fn = (fn, target_count) ->
+  return (args...) ->
+    fn(args...) if --target_count is 0
+    return null
+
+
 # test
 
 empty_fn = ->
@@ -76,8 +82,10 @@ describe 'task-queue', ->
       q = tq.Queue({capacity: 3, concurrency: 2})
       q.enqueue(-> sum++) for n in [1..2]
 
-      it 'should call finished', (done) ->
+      it 'should call finished and finishedTask twice', (done) ->
+        done = count_fn(done, 3)
         q.finished = -> done()
+        q.finishedTask = -> done()
         q.start()
 
       it 'should execute and dequeue methods properly', ->
