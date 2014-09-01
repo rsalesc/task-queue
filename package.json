@@ -9,7 +9,7 @@
     "readmeFilename": "README.md",
     "repository":{
         "type": "git",
-        "url": "http://github.com/skywalkerd/task-queue.git"
+        "url": "http://github.com/rsalesc/task-queue.git"
     },
     "dependencies":
     {
