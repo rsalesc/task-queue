@@ -16,7 +16,9 @@ class Queue
 
     throw new Error("Buffer capacity must be passed") unless @opts.capacity?
     @opts._running = @opts.start ? false
-    @opts.concurrency = @opts.concurrency ? 1
+    @opts._singleShot = false
+    @opts.concurrency ?= 1
+    @opts.timeout ?= 0
     @_initArray()
 
   _initArray: ->
@@ -28,15 +30,19 @@ class Queue
       setImmediate(=>
         deq.method.apply(deq.context ? null, deq.args ? null)
         if --actual_concurrency is 0
+          if @_singleShot and @size() is 0
+            @_singleShot = false
+            @_running = false
           @_exec
-          setImmediate(@finished) if @finished?
-      ) for n in [1..real_concurrency] when (deq = @dequeue())?
+          setTimeout(@finished, @opts.timeout) if @finished?
+      ) while real_concurrency-- when (deq = @dequeue())?
       return
 
   size: ->
     return @_array.size;
 
   enqueue: (fn, opts = {}) ->
+    if @_singleShot then throw new Error("can not enqueue item while single-shooting")
     opts.method = fn
     size = @_array.push(opts)
     @_exec()
@@ -50,6 +56,11 @@ class Queue
     @opts.concurrency = value
     return
 
+  timeout: (value) ->
+    return @opts.timeout unless value?
+    @opts.timeout = value
+    return
+
   start: ->
     wasRunning = @_running
     @_running = true
@@ -58,6 +69,7 @@ class Queue
 
   stop: ->
     @_running = false
+    @_singleShot = false
     return
 
   isRunning: ->
@@ -70,6 +82,13 @@ class Queue
 
   toArray: ->
     return @_array.toArray()
+
+  singleShot: ->
+    throw new Error("can not single-shot a running queue") if @_running
+    @_running = true
+    @_singleShot = true
+    @_exec
+    return
 
 
 class PriorityQueue extends Queue
