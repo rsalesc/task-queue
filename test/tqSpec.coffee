@@ -32,6 +32,10 @@ describe 'task-queue', ->
       it 'should return new size', ->
         expect(tq.Queue(single_capacity).enqueue(empty_fn, {})).to.equals(1)
 
+      it 'should throw when single-shooting', ->
+        (q = tq.Queue(single_capacity)).singleShot()
+        expect(-> q.enqueue(empty_fn)).to.throw()
+
     describe 'dequeue', ->
 
       q = tq.Queue(single_capacity)
@@ -79,6 +83,36 @@ describe 'task-queue', ->
       it 'should execute and dequeue methods properly', ->
         expect(sum).to.equals(2)
         expect(q.size()).to.equals(0)
+
+    describe 'singleShot', ->
+      q = tq.Queue({capacity: 3, concurrency: 2})
+      q.enqueue(-> return) for [1..3]
+
+      it 'should run only once', (done) ->
+        q.finished = ->
+          expect(q._running).to.be.not.truthy
+          expect(q._running).to.be.not.truthy
+          q.finished = null
+          done()
+        q.singleShot()
+
+      it 'should throw when already running', ->
+        q.stop()
+        q.start()
+        expect(q.singleShot).to.throw()
+
+    describe 'timeout', ->
+      timeout = 100
+      q = tq.Queue({capacity: 2, timeout})
+      q.enqueue(empty_fn) for [1..2]
+
+      it 'should make worker timeout', (done) ->
+        timedout = false
+        q.finished = ->
+          throw new Error("worker didnt timeout") unless timedout
+          done()
+        setTimeout((-> timedout = true), timeout)
+        q.singleShot()
 
   describe 'PriorityQueue', ->
 
