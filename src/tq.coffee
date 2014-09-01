@@ -28,8 +28,8 @@ class Queue
     if @_running
       real_concurrency = actual_concurrency = if @opts.concurrency > @size() then @size() else @opts.concurrency
       setImmediate(=>
-        deq.method.apply(deq.context ? null, deq.args ? null)
-        setImmediate(=> @finishedTask()) if @finishedTask?
+        task_return = deq.method.apply(deq.context ? null, deq.args ? null)
+        setImmediate(=> @finishedTask(task_return)) if @finishedTask?
         if --actual_concurrency is 0
           if @size() is 0
             setImmediate(=> @finished()) if @finished?
