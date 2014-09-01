@@ -1,2 +1,3 @@
 ./indexSpec.js
 /src/
+/lib/*.js.map
