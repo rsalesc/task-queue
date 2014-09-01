@@ -42,7 +42,7 @@ class Queue
     return @_array.size;
 
   enqueue: (fn, opts = {}) ->
-    if @_singleShot then throw new Error("can not enqueue item while single-shooting")
+    throw new Error("can not enqueue item while single-shooting") if @_singleShot
     opts.method = fn
     size = @_array.push(opts)
     @_exec()
@@ -62,6 +62,7 @@ class Queue
     return
 
   start: ->
+    throw new Error("can not start queue while single-shooting") if @_singleShot
     wasRunning = @_running
     @_running = true
     @_exec() unless wasRunning
@@ -87,7 +88,7 @@ class Queue
     throw new Error("can not single-shot a running queue") if @_running
     @_running = true
     @_singleShot = true
-    @_exec
+    @_exec()
     return
 
 
